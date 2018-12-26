@@ -87,8 +87,8 @@ lazy_static! {
     pub static ref BY_PATTERN: Vec<(Regex, ArchiveType)> = vec![
         (Regex::new(r"(?i)\.zip$").unwrap(), ArchiveType::Zip),
         (Regex::new(r"(?i)\.tar$").unwrap(), ArchiveType::Tar),
-        (Regex::new(r"(?i)\.t(ar.gz|gz)$").unwrap(), ArchiveType::TarGz),
-        (Regex::new(r"(?i)\.tar.xz$").unwrap(), ArchiveType::TarXz),
-        (Regex::new(r"(?i)\.tar.bz2$").unwrap(), ArchiveType::TarBz2),
+        (Regex::new(r"(?i)\.t(ar\.gz|gz)$").unwrap(), ArchiveType::TarGz),
+        (Regex::new(r"(?i)\.t(ar\.xz|xz)$").unwrap(), ArchiveType::TarXz),
+        (Regex::new(r"(?i)\.t(ar\.bz2|bz2?)$").unwrap(), ArchiveType::TarBz2),
     ];
 }
