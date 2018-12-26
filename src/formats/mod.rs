@@ -12,11 +12,13 @@ use strum_macros::EnumIter;
 use crate::archive::Archive;
 
 mod ar;
+mod cab;
 mod compression;
 mod tar;
 mod zip;
 
 pub use self::ar::ArArchive;
+pub use self::cab::CabArchive;
 pub use self::compression::{Compression, SingleFileArchive};
 pub use self::tar::TarArchive;
 pub use self::zip::ZipArchive;
@@ -34,6 +36,7 @@ const BASE_TYPES: [&str; 5] = [
 #[derive(Copy, Clone, PartialEq, Eq, EnumIter)]
 pub enum ArchiveType {
     Ar,
+    Cab,
     Zip,
     Tar,
     TarGz,
@@ -48,6 +51,7 @@ impl fmt::Display for ArchiveType {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             ArchiveType::Ar => write!(f, "unix ar archive"),
+            ArchiveType::Cab => write!(f, "microsoft cabinet"),
             ArchiveType::Zip => write!(f, "zip archive"),
             ArchiveType::Tar => write!(f, "uncompressed tarball"),
             ArchiveType::TarGz => write!(f, "gzip-compressed tarball"),
@@ -142,6 +146,7 @@ impl ArchiveType {
     pub fn open<P: AsRef<Path>>(self, path: &P) -> Result<Box<dyn Archive>, Error> {
         match self {
             ArchiveType::Ar => Ok(Box::new(ArArchive::open(path)?)),
+            ArchiveType::Cab => Ok(Box::new(CabArchive::open(path)?)),
             ArchiveType::Zip => Ok(Box::new(ZipArchive::open(path)?)),
             ArchiveType::Tar => Ok(Box::new(TarArchive::open(path, Compression::Uncompressed)?)),
             ArchiveType::TarGz => Ok(Box::new(TarArchive::open(path, Compression::Gz)?)),
@@ -167,15 +172,17 @@ lazy_static! {
     /// specially handled.
     static ref BY_MIMETYPE: std::collections::HashMap<&'static str, ArchiveType> = {
         let mut rv = std::collections::HashMap::new();
+        rv.insert("application/x-archive", ArchiveType::Ar);
+        rv.insert("application/vnd.ms-cab-compressed", ArchiveType::Cab);
         rv.insert("application/zip", ArchiveType::Zip);
         rv.insert("application/x-tar", ArchiveType::Tar);
-        rv.insert("application/x-archive", ArchiveType::Ar);
         rv
     };
 
     /// Mapping of regexes to filenames.
     static ref BY_PATTERN: Vec<(Regex, ArchiveType)> = vec![
         (Regex::new(r"(?i)\.ar?$").unwrap(), ArchiveType::Ar),
+        (Regex::new(r"(?i)\.cab?$").unwrap(), ArchiveType::Cab),
         (Regex::new(r"(?i)\.zip$").unwrap(), ArchiveType::Zip),
         (Regex::new(r"(?i)\.tar$").unwrap(), ArchiveType::Tar),
         (Regex::new(r"(?i)\.t(ar\.gz|gz)$").unwrap(), ArchiveType::TarGz),
