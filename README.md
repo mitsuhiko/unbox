@@ -6,6 +6,8 @@ A work in progress command line utility to unpack various types of archives quic
 unbox /path/to/my/archive.zip
 ```
 
+<img src="https://raw.githubusercontent.com/mitsuhiko/unbox/master/unbox.gif">
+
 ## Installation
 
 ```
