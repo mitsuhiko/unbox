@@ -2,6 +2,7 @@ use std::fs::File;
 use std::io::{BufReader, Read};
 use std::path::{Path, PathBuf};
 
+use bzip2::read::BzDecoder;
 use failure::Error;
 use libflate::gzip;
 use tar::Archive as TarArchiveReader;
@@ -15,6 +16,7 @@ pub enum TarCompression {
     Uncompressed,
     Gzip,
     Xz,
+    Bz2,
 }
 
 #[derive(Debug)]
@@ -53,6 +55,7 @@ impl Archive for TarArchive {
                 unpack_all(TarArchiveReader::new(gzip::Decoder::new(f)?), helper)
             }
             TarCompression::Xz => unpack_all(TarArchiveReader::new(XzDecoder::new(f)), helper),
+            TarCompression::Bz2 => unpack_all(TarArchiveReader::new(BzDecoder::new(f)), helper),
         }
     }
 }
