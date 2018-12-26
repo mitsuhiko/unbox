@@ -35,11 +35,6 @@ where
 }
 
 pub trait Archive: Debug {
-    /// Opens an archive by the given path.
-    fn open<P: AsRef<Path>>(path: P) -> Result<Self, Error>
-    where
-        Self: Sized;
-
     /// The path to the archive.
     fn path(&self) -> &Path;
 

@@ -14,8 +14,8 @@ pub struct ZipArchive {
     total_size: u64,
 }
 
-impl Archive for ZipArchive {
-    fn open<P: AsRef<Path>>(path: P) -> Result<Self, Error> {
+impl ZipArchive {
+    pub fn open<P: AsRef<Path>>(path: P) -> Result<Self, Error> {
         let path = path.as_ref().canonicalize()?;
         let mut rdr = ZipArchiveReader::new(BufReader::new(File::open(&path)?))?;
         let total_size = (0..rdr.len())
@@ -27,7 +27,9 @@ impl Archive for ZipArchive {
             total_size,
         })
     }
+}
 
+impl Archive for ZipArchive {
     fn path(&self) -> &Path {
         &self.path
     }
