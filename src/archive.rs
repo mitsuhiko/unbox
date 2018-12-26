@@ -3,7 +3,7 @@ use std::fs;
 use std::io::{self, BufReader, Read, Write};
 use std::path::{Path, PathBuf};
 
-use failure::{err_msg, Error};
+use failure::Error;
 use indicatif::{ProgressBar, ProgressStyle};
 use tree_magic;
 use uuid::Uuid;
