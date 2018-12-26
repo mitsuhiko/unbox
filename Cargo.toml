@@ -10,6 +10,10 @@ repository = "https://github.com/mitsuhiko/unbox"
 homepage = "https://github.com/mitsuhiko/unbox"
 documentation = "https://github.com/mitsuhiko/unbox"
 
+[profile.release]
+lto = true
+debug = true
+
 [dependencies]
 clap = "2.32.0"
 zip = "0.5.0"
