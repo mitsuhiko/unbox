@@ -1,4 +1,4 @@
-use std::fs::File;
+use std::fs::{File, create_dir_all};
 use std::io::BufReader;
 use std::path::{Path, PathBuf};
 
@@ -44,6 +44,11 @@ impl Archive for ZipArchive {
             let name = file.sanitized_name();
             if file.unix_mode().unwrap_or(0) & 16384 == 0 && !name.ends_with("/") {
                 helper.write_file_with_progress(name, file)?;
+            } else {
+                let path = helper.path().join(name);
+                if !path.exists() {
+                    create_dir_all(&path)?;
+                }
             }
         }
         Ok(())
