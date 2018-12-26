@@ -81,7 +81,7 @@ impl UnpackHelper {
             }
         };
 
-        pb.enable_steady_tick(100);
+        pb.enable_steady_tick(200);
 
         let tmp = TempDirectory::for_path(&dst.join(format!(".unbox-{}", Uuid::new_v4())))?;
         Ok(UnpackHelper {
