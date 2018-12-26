@@ -1,7 +1,7 @@
 mod archive;
 mod cli;
+mod formats;
 mod utils;
-mod zip;
 
 fn main() {
     use std::io::Write;

@@ -2,7 +2,8 @@ use clap::{App, Arg};
 use failure::{bail, Error};
 use tree_magic;
 
-use crate::archive::{ArchiveType, UnpackHelper};
+use crate::archive::UnpackHelper;
+use crate::formats::ArchiveType;
 
 pub fn main() -> Result<(), Error> {
     let app = App::new("unbox")

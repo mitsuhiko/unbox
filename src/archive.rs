@@ -4,17 +4,11 @@ use std::io::{self, BufReader, Read, Write};
 use std::path::{Path, PathBuf};
 
 use failure::Error;
-use indicatif::{ProgressBar, ProgressStyle};
+use indicatif::{ProgressBar, ProgressStyle, ProgressBarRead};
 use tree_magic;
 use uuid::Uuid;
 
 use crate::utils::{rename_resolving_conflict, TempDirectory};
-
-/// An enum of supported archive types.
-#[derive(Copy, Clone, PartialEq, Eq)]
-pub enum ArchiveType {
-    Zip,
-}
 
 pub fn copy_with_progress<R: ?Sized, W: ?Sized>(
     progress: &ProgressBar,
@@ -56,37 +50,6 @@ pub trait Archive: Debug {
 
     /// Unpack the archive into the unpack helper.
     fn unpack(&mut self, helper: &mut UnpackHelper) -> Result<(), Error>;
-}
-
-impl ArchiveType {
-    /// Determines the archive type for the given path.
-    pub fn for_path<P: AsRef<Path>>(path: &P) -> Option<ArchiveType> {
-        // determine by filename
-        if let Some(filename) = path.as_ref().file_name().and_then(|x| x.to_str()) {
-            if filename.ends_with(".zip") {
-                return Some(ArchiveType::Zip);
-            }
-        };
-
-        // determine by magic
-        let mut buf = [0u8; 4096];
-        let f = fs::File::open(path).ok()?;
-        let mut reader = BufReader::new(f);
-        let size = reader.read(&mut buf[..]).ok()?;
-        let magic = tree_magic::from_u8(&buf[..size]);
-
-        match magic {
-            "application/zip" => Some(ArchiveType::Zip),
-            _ => None,
-        }
-    }
-
-    /// Opens the given path as an archive of the type.
-    pub fn open<P: AsRef<Path>>(self, path: &P) -> Result<Box<dyn Archive>, Error> {
-        match self {
-            ArchiveType::Zip => Ok(Box::new(crate::zip::ZipArchive::open(path)?)),
-        }
-    }
 }
 
 #[derive(Debug)]
@@ -134,14 +97,28 @@ impl UnpackHelper {
         })
     }
 
+    /// Reports the temporary scratchpad path.
+    pub fn path(&self) -> &Path {
+        self.tmp.path()
+    }
+
+    /// Reports operating on a file.
+    pub fn report_file<P: AsRef<Path>>(&mut self, filename: P) {
+        self.pb.set_message(&format!("{}", filename.as_ref().display()));
+    }
+
+    /// Wraps a stream with the progress bar reader.
+    pub fn wrap_read<R: Read>(&self, read: R) -> ProgressBarRead<R> {
+        self.pb.wrap_read(read)
+    }
+
     /// Writes into a file.
     pub fn write_file<P: AsRef<Path>>(&mut self, filename: P) -> Result<fs::File, Error> {
         let path = self.tmp.path().join(filename.as_ref());
         if let Some(ref parent) = path.parent() {
             fs::create_dir_all(parent)?;
         }
-        self.pb
-            .set_message(&format!("{}", filename.as_ref().display()));
+        self.report_file(filename);
         Ok(fs::File::create(path)?)
     }
 
