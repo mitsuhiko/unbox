@@ -9,21 +9,25 @@ use crate::formats::ArchiveType;
 
 pub fn main() -> Result<(), Error> {
     let app = App::new("unbox")
-        .about("\
-            unbox unpacks archives.\n\n\
-            unbox is a no bullshit unpack command.  It can unpack a growing \
-            range of file formats and just dumps them into the working \
-            directory ensuring that only one item is created (single file or \
-            folder).\
-        ")
-        .after_help("\
-            Files are always unpacked into the working directory by going \
-            through a temporary location first.  If you abort the tool all \
-            files will be deleted.  Only one item is unpacked which is the \
-            entire content of the archive.  If the archive does not have a \
-            top level folder a new one is created with a name derived from \
-            the archive file name.\
-        ")
+        .about(
+            "\
+             unbox unpacks archives.\n\n\
+             unbox is a no bullshit unpack command.  It can unpack a growing \
+             range of file formats and just dumps them into the working \
+             directory ensuring that only one item is created (single file or \
+             folder).\
+             ",
+        )
+        .after_help(
+            "\
+             Files are always unpacked into the working directory by going \
+             through a temporary location first.  If you abort the tool all \
+             files will be deleted.  Only one item is unpacked which is the \
+             entire content of the archive.  If the archive does not have a \
+             top level folder a new one is created with a name derived from \
+             the archive file name.\
+             ",
+        )
         .author("Armin Ronacher <armin.ronacher@active-4.com>")
         .version(env!("CARGO_PKG_VERSION"))
         .setting(AppSettings::ArgRequiredElseHelp)

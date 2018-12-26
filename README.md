@@ -16,6 +16,7 @@ cargo install unbox
 
 ## Supported Formats
 
+- unix ar archives
 - zip archives
 - uncompressed tarballs
 - gzip-compressed tarballs
