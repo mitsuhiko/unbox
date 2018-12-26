@@ -4,7 +4,7 @@ use std::io::{self, BufReader, Read, Write};
 use std::path::{Path, PathBuf};
 
 use failure::Error;
-use indicatif::{ProgressBar, ProgressStyle, ProgressBarRead};
+use indicatif::{ProgressBar, ProgressBarRead, ProgressStyle};
 use tree_magic;
 use uuid::Uuid;
 
@@ -104,7 +104,8 @@ impl UnpackHelper {
 
     /// Reports operating on a file.
     pub fn report_file<P: AsRef<Path>>(&mut self, filename: P) {
-        self.pb.set_message(&format!("{}", filename.as_ref().display()));
+        self.pb
+            .set_message(&format!("{}", filename.as_ref().display()));
     }
 
     /// Wraps a stream with the progress bar reader.

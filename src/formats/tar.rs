@@ -17,10 +17,7 @@ impl Archive for TarArchive {
     fn open<P: AsRef<Path>>(path: P) -> Result<Self, Error> {
         let path = path.as_ref().canonicalize()?;
         let total_size = path.metadata()?.len();
-        Ok(TarArchive {
-            path,
-            total_size,
-        })
+        Ok(TarArchive { path, total_size })
     }
 
     fn path(&self) -> &Path {
@@ -32,7 +29,8 @@ impl Archive for TarArchive {
     }
 
     fn unpack(&mut self, helper: &mut UnpackHelper) -> Result<(), Error> {
-        let mut rdr = TarArchiveReader::new(BufReader::new(helper.wrap_read(File::open(&self.path)?)));
+        let mut rdr =
+            TarArchiveReader::new(BufReader::new(helper.wrap_read(File::open(&self.path)?)));
         for entry in rdr.entries()? {
             let mut entry = entry?;
             if let Ok(path) = entry.path() {

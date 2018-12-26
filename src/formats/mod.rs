@@ -1,3 +1,4 @@
+use std::fmt;
 use std::fs;
 use std::io::{BufReader, Read};
 use std::path::Path;
@@ -8,17 +9,26 @@ use regex::Regex;
 
 use crate::archive::Archive;
 
-mod zip;
 mod tar;
+mod zip;
 
-pub use self::zip::ZipArchive;
 pub use self::tar::TarArchive;
+pub use self::zip::ZipArchive;
 
 /// An enum of supported archive types.
 #[derive(Copy, Clone, PartialEq, Eq)]
 pub enum ArchiveType {
     Zip,
     Tar,
+}
+
+impl fmt::Display for ArchiveType {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            ArchiveType::Zip => write!(f, "zip archive"),
+            ArchiveType::Tar => write!(f, "uncompressed tarball"),
+        }
+    }
 }
 
 impl ArchiveType {
