@@ -5,6 +5,7 @@ use std::path::{Path, PathBuf};
 use failure::Error;
 use libflate::gzip;
 use tar::Archive as TarArchiveReader;
+use xz2::read::XzDecoder;
 
 use crate::archive::{Archive, UnpackHelper};
 
@@ -13,6 +14,7 @@ use crate::archive::{Archive, UnpackHelper};
 pub enum TarCompression {
     Uncompressed,
     Gzip,
+    Xz,
 }
 
 #[derive(Debug)]
@@ -44,17 +46,13 @@ impl Archive for TarArchive {
     }
 
     fn unpack(&mut self, helper: &mut UnpackHelper) -> Result<(), Error> {
+        let f = BufReader::new(helper.wrap_read(File::open(&self.path)?));
         match self.compression {
-            TarCompression::Uncompressed => unpack_all(
-                TarArchiveReader::new(BufReader::new(helper.wrap_read(File::open(&self.path)?))),
-                helper,
-            ),
-            TarCompression::Gzip => unpack_all(
-                TarArchiveReader::new(gzip::Decoder::new(BufReader::new(
-                    helper.wrap_read(File::open(&self.path)?),
-                ))?),
-                helper,
-            ),
+            TarCompression::Uncompressed => unpack_all(TarArchiveReader::new(f), helper),
+            TarCompression::Gzip => {
+                unpack_all(TarArchiveReader::new(gzip::Decoder::new(f)?), helper)
+            }
+            TarCompression::Xz => unpack_all(TarArchiveReader::new(XzDecoder::new(f)), helper),
         }
     }
 }

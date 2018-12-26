@@ -21,6 +21,7 @@ pub enum ArchiveType {
     Zip,
     Tar,
     TarGz,
+    TarXz,
 }
 
 impl fmt::Display for ArchiveType {
@@ -29,6 +30,7 @@ impl fmt::Display for ArchiveType {
             ArchiveType::Zip => write!(f, "zip archive"),
             ArchiveType::Tar => write!(f, "uncompressed tarball"),
             ArchiveType::TarGz => write!(f, "gzip-compressed tarball"),
+            ArchiveType::TarXz => write!(f, "xz-compressed tarball"),
         }
     }
 }
@@ -64,6 +66,7 @@ impl ArchiveType {
                 TarCompression::Uncompressed,
             )?)),
             ArchiveType::TarGz => Ok(Box::new(TarArchive::open(path, TarCompression::Gzip)?)),
+            ArchiveType::TarXz => Ok(Box::new(TarArchive::open(path, TarCompression::Xz)?)),
         }
     }
 }
@@ -82,5 +85,6 @@ lazy_static! {
         (Regex::new(r"(?i)\.zip$").unwrap(), ArchiveType::Zip),
         (Regex::new(r"(?i)\.tar$").unwrap(), ArchiveType::Tar),
         (Regex::new(r"(?i)\.t(ar.gz|gz)$").unwrap(), ArchiveType::TarGz),
+        (Regex::new(r"(?i)\.tar.xz$").unwrap(), ArchiveType::TarXz),
     ];
 }
