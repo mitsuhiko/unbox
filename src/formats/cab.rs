@@ -1,6 +1,6 @@
 use std::fmt;
 use std::fs::File;
-use std::io::{BufReader};
+use std::io::BufReader;
 use std::path::{Path, PathBuf};
 
 use cab::Cabinet;
@@ -12,6 +12,7 @@ pub struct CabArchive {
     cab: Cabinet<BufReader<File>>,
     total_size: u64,
     path: PathBuf,
+    files: Vec<String>,
 }
 
 impl fmt::Debug for CabArchive {
@@ -29,12 +30,19 @@ impl CabArchive {
         let f = BufReader::new(File::open(&path)?);
         let cab = Cabinet::new(f)?;
         let mut total_size = 0;
+        let mut files = vec![];
         for folder_entry in cab.folder_entries() {
             for file_entry in folder_entry.file_entries() {
                 total_size += u64::from(file_entry.uncompressed_size());
+                files.push(file_entry.name().to_string());
             }
         }
-        Ok(CabArchive { path, cab, total_size })
+        Ok(CabArchive {
+            path,
+            cab,
+            total_size,
+            files,
+        })
     }
 }
 
@@ -48,18 +56,10 @@ impl Archive for CabArchive {
     }
 
     fn unpack(&mut self, helper: &mut UnpackHelper) -> Result<(), Error> {
-        let mut entries = vec![];
-        for folder_entry in self.cab.folder_entries() {
-            for file_entry in folder_entry.file_entries() {
-                entries.push(file_entry.name().to_string());
-            }
-        }
-
-        for name in entries {
+        for name in &self.files {
             let rdr = self.cab.read_file(&name)?;
             helper.write_file_with_progress(&name.replace('\\', "/"), rdr)?;
         }
-
         Ok(())
     }
 }
