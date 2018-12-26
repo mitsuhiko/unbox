@@ -5,9 +5,16 @@ use std::path::{Path, PathBuf};
 
 use failure::{err_msg, Error};
 use indicatif::{ProgressBar, ProgressStyle};
+use tree_magic;
 use uuid::Uuid;
 
 use crate::utils::{rename_resolving_conflict, TempDirectory};
+
+/// An enum of supported archive types.
+#[derive(Copy, Clone, PartialEq, Eq)]
+pub enum ArchiveType {
+    Zip,
+}
 
 pub fn copy_with_progress<R: ?Sized, W: ?Sized>(
     progress: &ProgressBar,
@@ -51,15 +58,34 @@ pub trait Archive: Debug {
     fn unpack(&mut self, helper: &mut UnpackHelper) -> Result<(), Error>;
 }
 
-pub fn open_archive<P: AsRef<Path>>(
-    path: P,
-    magic: Option<&str>,
-) -> Result<Box<dyn Archive>, Error> {
-    use crate::zip::ZipArchive;
+impl ArchiveType {
+    /// Determines the archive type for the given path.
+    pub fn for_path<P: AsRef<Path>>(path: &P) -> Option<ArchiveType> {
+        // determine by filename
+        if let Some(filename) = path.as_ref().file_name().and_then(|x| x.to_str()) {
+            if filename.ends_with(".zip") {
+                return Some(ArchiveType::Zip);
+            }
+        };
 
-    match magic {
-        Some("application/zip") => Ok(Box::new(ZipArchive::open(path)?)),
-        _ => Err(err_msg("Unknown archive")),
+        // determine by magic
+        let mut buf = [0u8; 4096];
+        let f = fs::File::open(path).ok()?;
+        let mut reader = BufReader::new(f);
+        let size = reader.read(&mut buf[..]).ok()?;
+        let magic = tree_magic::from_u8(&buf[..size]);
+
+        match magic {
+            "application/zip" => Some(ArchiveType::Zip),
+            _ => None,
+        }
+    }
+
+    /// Opens the given path as an archive of the type.
+    pub fn open<P: AsRef<Path>>(self, path: &P) -> Result<Box<dyn Archive>, Error> {
+        match self {
+            ArchiveType::Zip => Ok(Box::new(crate::zip::ZipArchive::open(path)?)),
+        }
     }
 }
 
