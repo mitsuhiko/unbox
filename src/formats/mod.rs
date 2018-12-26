@@ -7,6 +7,7 @@ use failure::Error;
 use lazy_static::lazy_static;
 use petgraph::Direction;
 use regex::Regex;
+use strum_macros::EnumIter;
 
 use crate::archive::Archive;
 
@@ -28,7 +29,7 @@ const BASE_TYPES: [&str; 5] = [
 ];
 
 /// An enum of supported archive types.
-#[derive(Copy, Clone, PartialEq, Eq)]
+#[derive(Copy, Clone, PartialEq, Eq, EnumIter)]
 pub enum ArchiveType {
     Zip,
     Tar,
