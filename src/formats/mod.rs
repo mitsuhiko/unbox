@@ -37,6 +37,7 @@ const BASE_TYPES: [&str; 5] = [
 pub enum ArchiveType {
     Ar,
     Cab,
+    PeCab,
     Zip,
     Tar,
     TarGz,
@@ -52,6 +53,7 @@ impl fmt::Display for ArchiveType {
         match *self {
             ArchiveType::Ar => write!(f, "unix ar archive"),
             ArchiveType::Cab => write!(f, "microsoft cabinet"),
+            ArchiveType::PeCab => write!(f, "portable executable containing microsoft cabinet"),
             ArchiveType::Zip => write!(f, "zip archive"),
             ArchiveType::Tar => write!(f, "uncompressed tarball"),
             ArchiveType::TarGz => write!(f, "gzip-compressed tarball"),
@@ -115,6 +117,13 @@ impl ArchiveType {
         let size = reader.read(&mut buf[..]).ok()?;
         let mimetype = get_mimetype(&buf[..size]);
 
+        // cabinet files might be hidden in PE files :(
+        if mimetype == "application/x-executable" {
+            if let Ok(_) = CabArchive::find_in_executable(&path) {
+                return Some(ArchiveType::PeCab);
+            }
+        }
+
         // if we get a direct hit, then we know what we are dealing with.  These
         // intentionally do not include mimetypes for pure compession algorithms
         // such as gzip
@@ -147,6 +156,7 @@ impl ArchiveType {
         match self {
             ArchiveType::Ar => Ok(Box::new(ArArchive::open(path)?)),
             ArchiveType::Cab => Ok(Box::new(CabArchive::open(path)?)),
+            ArchiveType::PeCab => Ok(Box::new(CabArchive::find_in_executable(path)?)),
             ArchiveType::Zip => Ok(Box::new(ZipArchive::open(path)?)),
             ArchiveType::Tar => Ok(Box::new(TarArchive::open(path, Compression::Uncompressed)?)),
             ArchiveType::TarGz => Ok(Box::new(TarArchive::open(path, Compression::Gz)?)),

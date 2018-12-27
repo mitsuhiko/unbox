@@ -10,10 +10,6 @@ repository = "https://github.com/mitsuhiko/unbox"
 homepage = "https://github.com/mitsuhiko/unbox"
 documentation = "https://github.com/mitsuhiko/unbox"
 
-[profile.release]
-lto = true
-debug = true
-
 [dependencies]
 clap = "2.32.0"
 zip = "0.5.0"
@@ -34,3 +30,6 @@ strum_macros = "0.13.0"
 ar = "0.6.2"
 cab = "0.2.0"
 memmap = "0.7.0"
+owning_ref = "0.4.0"
+stable_deref_trait = "1.1.1"
+goblin = { version = "0.0.19", features = ["pe32", "pe64", "std"], default_features = false }
