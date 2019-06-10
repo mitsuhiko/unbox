@@ -43,7 +43,7 @@ impl Archive for ArArchive {
             let path = {
                 #[cfg(windows)]
                 {
-                    PathBuf::new(String::from_utf8(header.identifier())?)
+                    PathBuf::from(String::from_utf8(header.identifier().to_vec())?)
                 }
                 #[cfg(unix)]
                 {
