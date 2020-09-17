@@ -5,7 +5,6 @@ use std::path::{Path, PathBuf};
 
 use failure::Error;
 use indicatif::{ProgressBar, ProgressBarRead, ProgressStyle};
-use tree_magic;
 use uuid::Uuid;
 
 use crate::utils::{rename_resolving_conflict, TempDirectory};
@@ -57,7 +56,7 @@ pub struct UnpackHelper {
 
 impl UnpackHelper {
     /// Creates an unpack helper for an archive.
-    pub fn create<P: AsRef<Path>>(archive: &Archive, dst: &P) -> Result<UnpackHelper, Error> {
+    pub fn create<P: AsRef<Path>>(archive: &dyn Archive, dst: &P) -> Result<UnpackHelper, Error> {
         let archive_base = archive
             .path()
             .file_stem()

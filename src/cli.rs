@@ -2,7 +2,6 @@ use clap::{App, AppSettings, Arg};
 use console::style;
 use failure::{bail, Error};
 use strum::IntoEnumIterator;
-use tree_magic;
 
 use crate::archive::UnpackHelper;
 use crate::formats::ArchiveType;
