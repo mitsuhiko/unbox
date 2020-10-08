@@ -118,10 +118,8 @@ impl ArchiveType {
         let mimetype = get_mimetype(&buf[..size]);
 
         // cabinet files might be hidden in PE files :(
-        if mimetype == "application/x-executable" {
-            if let Ok(_) = CabArchive::find_in_executable(&path) {
-                return Some(ArchiveType::PeCab);
-            }
+        if mimetype == "application/x-executable" && CabArchive::find_in_executable(&path).is_ok() {
+            return Some(ArchiveType::PeCab);
         }
 
         // if we get a direct hit, then we know what we are dealing with.  These
