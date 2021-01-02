@@ -3,15 +3,15 @@
 A work in progress command line utility to unpack various types of archives quickly.
 
 ```
-unbox /path/to/my/archive.zip
+unpack /path/to/my/archive.zip
 ```
 
-<img src="https://raw.githubusercontent.com/mitsuhiko/unbox/master/unbox.gif">
+<img src="https://raw.githubusercontent.com/byron/unpack/master/unbox.gif">
 
 ## Installation
 
 ```
-cargo install unbox
+cargo install unpack
 ```
 
 ## Supported Formats
@@ -29,18 +29,18 @@ cargo install unbox
 - bzip2-compressed files
 
 Note on cabinet files: this uses the [cab](https://crates.io/crates/cab) Rust library which
-currently only supports deflate cabs.  This means it's unable to extract cabs which use
+currently only supports deflate cabs. This means it's unable to extract cabs which use
 the LZX or Quantum compression formats.
 
 ## FAQ
 
 **Why do this?**
 
-> No specific reason.  I used to have a Python tool called [unp](https://github.com/mitsuhiko/unp)
+> No specific reason. I used to have a Python tool called [unp](https://github.com/mitsuhiko/unp)
 > which just shells out to system tools to unpack and I felt like I want to see if I can use the
 > rust ecosystem to build one that comes with the unpacking code.
 
 **How fast is it?**
 
-> It's not particularly fast.  In fact it's about 50% slower than the system tools but for most
+> It's not particularly fast. In fact it's about 50% slower than the system tools but for most
 > archives I unpack that does not cause me any grief.
