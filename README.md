@@ -1,4 +1,4 @@
-# unbox
+# unpack - a compiling fork of [unbox](https://github.com/mitsuhiko/unbox)
 
 A work in progress command line utility to unpack various types of archives quickly.
 
